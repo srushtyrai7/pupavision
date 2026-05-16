@@ -238,13 +238,13 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
 <!-- HERO -->
 <section class="hero">
   <div>
-    <h1 class="hero-title">Automated <span>Silkworm Pupa</span> Gender Identification</h1>
+    <h1 class="hero-title" id="hero-title-main">Automated <span>Silkworm Pupa</span> Gender Identification</h1>
    an class="pipe-tag">≥70% threshold</span></div>
-    </div> <p class="hero-desc">Use your live camera or upload a photo of a  pupa. PupaVision analyses shape, segment ratio, and texture features to predict Male or Female — with a confidence score and Grad-CAM attention overlay.</p>
+    </div> <p class="hero-desc" id="hero-desc-main">Use your live camera or upload a photo of a  pupa. PupaVision analyses shape, segment ratio, and texture features to predict Male or Female — with a confidence score and Grad-CAM attention overlay.</p>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-val">95%+</div><div class="stat-label">Target Accuracy</div></div>
-      <div class="stat"><div class="stat-val">&lt;2s</div><div class="stat-label">Inference Time</div></div>
-      <div class="stat"><div class="stat-val">CSR2 + PM</div><div class="stat-label">Breed Support</div></div>
+      <div class="stat"><div class="stat-val">95%+</div><div class="stat-label" id="txt-target-acc">Target Accuracy</div></div>
+      <div class="stat"><div class="stat-val">&lt;2s</div><div class="stat-label" id="txt-inf-time">Inference Time</div></div>
+      <div class="stat"><div class="stat-val">CSR2 + PM</div><div class="stat-label" id="txt-breed-sup">Breed Support</div></div>
     </div>
   </div>
   <div class="pipeline">
@@ -280,10 +280,10 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
     </div>
 
     <div class="tab-row">
-      <button class="tab-btn on"  onclick="switchTab('camera','classify')">📷 Live Camera</button>
-      <button class="tab-btn"     onclick="switchTab('upload','classify')">🖼 Upload Image</button>
-      <button class="tab-btn"     onclick="switchTab('result','classify')">Result</button>
-      <button class="tab-btn"     onclick="switchTab('features','classify')">Feature Analysis</button>
+      <button class="tab-btn on"  id="tab-camera-btn" onclick="switchTab('camera','classify')">📷 Live Camera</button>
+      <button class="tab-btn"     id="tab-upload-btn" onclick="switchTab('upload','classify')">🖼 Upload Image</button>
+      <button class="tab-btn"     id="tab-result-btn" onclick="switchTab('result','classify')">Result</button>
+      <button class="tab-btn"     id="tab-features-btn" onclick="switchTab('features','classify')">Feature Analysis</button>
     </div>
 
     <div class="panel-body">
@@ -529,6 +529,81 @@ let stream = null, facingMode = 'environment';
 let capturedDataURL = null;
 let lastSource = 'upload'; // 'upload' or 'camera'
 
+let autoCaptureInterval = null;
+let sessionCounters = { total: 0, female: 0, male: 0, flagged: 0 };
+let currentLang = 'en';
+
+const langDict = {
+  'txt-karnataka': { en: 'Karnataka Sericulture', kn: 'ಕರ್ನಾಟಕ ರೇಷ್ಮೆ ಕೃಷಿ' },
+  'txt-sim': { en: 'MobileNetV2 Simulation', kn: 'ಮೊಬೈಲ್ ನೆಟ್ ವಿ2 ಸಿಮ್ಯುಲೇಶನ್' },
+  'txt-retake': { en: '↩ Retake', kn: '↩ ಮರುಪ್ರಯತ್ನಿಸಿ' },
+  'txt-class-cam': { en: 'Classify Pupa', kn: 'ವರ್ಗೀಕರಿಸಿ' },
+  'txt-toggle-heat-cam': { en: '🌡 Toggle Grad-CAM Heatmap', kn: '🌡 ಶಾಖ ನಕ್ಷೆ ಟಾಗಲ್ ಮಾಡಿ' },
+  'txt-session-dash': { en: 'Session Counter', kn: 'ಸೆಷನ್ ಕೌಂಟರ್' },
+  'txt-reset-btn': { en: 'Reset', kn: 'ರೀಸೆಟ್' },
+  'txt-dash-female': { en: '♀ Female', kn: '♀ ಹೆಣ್ಣು' },
+  'txt-dash-male': { en: '♂ Male', kn: '♂ ಗಂಡು' },
+  'txt-dash-total': { en: 'Total: ', kn: 'ಒಟ್ಟು: ' },
+  'txt-dash-flagged': { en: 'Flagged: ', kn: 'ಪರಿಶೀಲಿಸಿ: ' },
+  'hero-title-main': { en: 'Automated <span>Silkworm Pupa</span> Gender Identification', kn: 'ಸ್ವಯಂಚಾಲಿತ <span>ರೇಷ್ಮೆ ಹುಳು ಕೋಶ</span> ಲಿಂಗ ಪತ್ತೆ' },
+  'hero-desc-main': { en: 'Use your live camera or upload a photo of a  pupa. PupaVision analyses shape, segment ratio, and texture features to predict Male or Female — with a confidence score and Grad-CAM attention overlay.', kn: 'ನಿಮ್ಮ ಕ್ಯಾಮರಾ ಬಳಸಿ ಅಥವಾ ಕೋಶದ ಫೋಟೋ ಅಪ್ಲೋಡ್ ಮಾಡಿ. ಇದು ಆಕಾರ, ಅನುಪಾತ ಮತ್ತು ವಿನ್ಯಾಸವನ್ನು ವಿಶ್ಲೇಷಿಸಿ ಗಂಡು ಅಥವಾ ಹೆಣ್ಣು ಎಂದು ಊಹಿಸುತ್ತದೆ.' },
+  'txt-target-acc': { en: 'Target Accuracy', kn: 'ಗುರಿ ನಿಖರತೆ' },
+  'txt-inf-time': { en: 'Inference Time', kn: 'ಊಹಿಸುವ ಸಮಯ' },
+  'txt-breed-sup': { en: 'Breed Support', kn: 'ತಳಿ ಬೆಂಬಲ' },
+  'tab-camera-btn': { en: '📷 Live Camera', kn: '📷 ಲೈವ್ ಕ್ಯಾಮರಾ' },
+  'tab-upload-btn': { en: '🖼 Upload Image', kn: '🖼 ಫೋಟೋ ಅಪ್ಲೋಡ್' },
+  'tab-result-btn': { en: 'Result', kn: 'ಫಲಿತಾಂಶ' },
+  'tab-features-btn': { en: 'Feature Analysis', kn: 'ವಿಶ್ಲೇಷಣೆ' }
+};
+
+function toggleLanguage() {
+  currentLang = currentLang === 'en' ? 'kn' : 'en';
+  document.getElementById('langToggle').innerHTML = currentLang === 'en' ? '🇮🇳 ಕನ್ನಡ' : '🇬🇧 English';
+  for (const [id, translations] of Object.entries(langDict)) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = translations[currentLang];
+  }
+  if (currentResult) showResult(currentResult);
+}
+
+function updateDashboard(result) {
+  sessionCounters.total++;
+  if (result.flagged) {
+    sessionCounters.flagged++;
+  } else if (result.label === 'Female') {
+    sessionCounters.female++;
+  } else {
+    sessionCounters.male++;
+  }
+  document.getElementById('dashTotal').textContent = sessionCounters.total;
+  document.getElementById('dashFemale').textContent = sessionCounters.female;
+  document.getElementById('dashMale').textContent = sessionCounters.male;
+  document.getElementById('dashFlagged').textContent = sessionCounters.flagged;
+  let pct = Math.min((sessionCounters.total / 500) * 100, 100);
+  document.getElementById('dashProgress').style.width = pct + '%';
+  document.getElementById('dashTargetText').textContent = sessionCounters.total + ' / 500';
+}
+
+function resetCounter() {
+  sessionCounters = { total: 0, female: 0, male: 0, flagged: 0 };
+  document.getElementById('dashTotal').textContent = '0';
+  document.getElementById('dashFemale').textContent = '0';
+  document.getElementById('dashMale').textContent = '0';
+  document.getElementById('dashFlagged').textContent = '0';
+  document.getElementById('dashProgress').style.width = '0%';
+  document.getElementById('dashTargetText').textContent = '0 / 500';
+}
+
+function updateLiveBadge(r) {
+  const badge = document.getElementById('liveBadge');
+  badge.style.display = 'block';
+  const lbl = currentLang === 'en' ? (r.label === 'Female' ? '♀ Female' : '♂ Male') : (r.label === 'Female' ? '♀ ಹೆಣ್ಣು' : '♂ ಗಂಡು');
+  badge.innerHTML = r.flagged ? `⚠ Low Confidence (${(r.conf*100).toFixed(0)}%)` : `${lbl} (${(r.conf*100).toFixed(0)}%)`;
+  badge.style.borderColor = r.flagged ? 'var(--coral)' : (r.label === 'Female' ? 'var(--teal)' : 'var(--amber)');
+  badge.style.color = badge.style.borderColor;
+  updateDashboard(r);
+}
+
 // ── Tab switcher ───────────────────────────────────────────────
 function switchTab(name, group) {
   const groups = {
@@ -578,12 +653,30 @@ async function startCamera() {
     document.getElementById('heatmapToggleCam').style.display = 'none';
     heatmapCamVisible = false;
     highlightPipe(1);
+
+    if (autoCaptureInterval) clearInterval(autoCaptureInterval);
+    autoCaptureInterval = setInterval(() => {
+       const v = document.getElementById('cameraFeed');
+       if (v.style.display !== 'none' && !document.getElementById('processingCam').classList.contains('show')) {
+         const c = document.createElement('canvas');
+         c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+         if(c.width > 0) {
+           c.getContext('2d').drawImage(v, 0, 0);
+           const data = c.toDataURL('image/jpeg', 0.8);
+           const res = simulateClassification(data);
+           updateLiveBadge(res);
+         }
+       }
+    }, 3000);
+
   } catch(e) {
     document.getElementById('camError').classList.add('show');
   }
 }
 
 function stopCamera() {
+  if (autoCaptureInterval) clearInterval(autoCaptureInterval);
+  document.getElementById('liveBadge').style.display = 'none';
   if (stream) { stream.getTracks().forEach(t=>t.stop()); stream=null; }
   const v = document.getElementById('cameraFeed');
   v.srcObject=null; v.style.display='none';
@@ -745,6 +838,7 @@ function runClassification(imgSrc, source) {
     showFeatures(result);
     drawHeatmap(result, source);
     addToHistory(imgSrc, result);
+    updateDashboard(result);
 
     if(source==='cam'){
       document.getElementById('heatmapToggleCam').style.display='block';
@@ -807,7 +901,11 @@ function showResult(r) {
   else if(r.label==='Female'){verdict.classList.add('rv-female');bar.classList.add('fill-female');icon.textContent='♀';}
   else{verdict.classList.add('rv-male');bar.classList.add('fill-male');icon.textContent='♂';}
 
-  label.textContent=r.flagged?'Low Confidence':r.label;
+  const langLblF = currentLang === 'en' ? 'Female' : 'ಹೆಣ್ಣು';
+  const langLblM = currentLang === 'en' ? 'Male' : 'ಗಂಡು';
+  const langLblFlag = currentLang === 'en' ? 'Low Confidence' : 'ಕಡಿಮೆ ವಿಶ್ವಾಸಾರ್ಹತೆ (ಪರಿಶೀಲಿಸಿ)';
+  
+  label.textContent=r.flagged?langLblFlag:(r.label==='Female'?langLblF:langLblM);
   label.style.color=r.flagged?'var(--coral)':r.label==='Female'?'var(--teal)':'var(--amber)';
   conf.textContent='Confidence: '+(r.conf*100).toFixed(1)+'%  ·  Prediction: '+r.label;
   setTimeout(()=>{bar.style.width=(r.conf*100).toFixed(1)+'%';},50);
