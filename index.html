@@ -229,8 +229,9 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
     </div>
   </div>
   <div class="header-meta">
-    <span class="badge badge-amber">Karnataka Sericulture</span>
-    <span class="badge">MobileNetV2 Simulation</span>
+    <button id="langToggle" class="btn-sm" onclick="toggleLanguage()" style="margin-right:8px;font-size:14px;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;">🇮🇳 ಕನ್ನಡ</button>
+    <span class="badge badge-amber" id="txt-karnataka">Karnataka Sericulture</span>
+    <span class="badge" id="txt-sim">MobileNetV2 Simulation</span>
   </div>
 </header>
 
@@ -303,6 +304,7 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
           <div class="vf-corner vf-bl"></div><div class="vf-corner vf-br"></div>
           <div class="scan-line" id="scanLine"></div>
           <div class="vf-status" id="vfStatus">Camera off</div>
+          <div id="liveBadge" style="position:absolute; top:8px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); color:white; padding:4px 12px; border-radius:20px; font-family:var(--mono); font-size:12px; font-weight:bold; display:none; border:1px solid var(--teal); white-space:nowrap; z-index:10;">Live: ♀ Female (95%)</div>
         </div>
 
         <!-- Start button -->
@@ -325,11 +327,37 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
         <!-- After capture -->
         <div id="camCapturedRow" style="display:none">
           <div style="display:flex;gap:8px;margin-bottom:10px">
-            <button class="btn-retake" onclick="retake()">↩ Retake</button>
-            <button class="btn btn-primary" onclick="classifyCam()" id="classifyCamBtn" style="flex:1;margin-top:0">🔬 Classify Pupa</button>
+            <button class="btn-retake" id="txt-retake" onclick="retake()">↩ Retake</button>
+            <button class="btn btn-primary" onclick="classifyCam()" id="classifyCamBtn" style="flex:1;margin-top:0">🔬 <span id="txt-class-cam">Classify Pupa</span></button>
           </div>
           <!-- Heatmap toggle for camera -->
-          <button class="btn-secondary" onclick="toggleHeatmapCam()" id="heatmapToggleCam" style="display:none;width:100%;margin-top:0;text-align:center">🌡 Toggle Grad-CAM Heatmap</button>
+          <button class="btn-secondary" onclick="toggleHeatmapCam()" id="heatmapToggleCam" style="display:none;width:100%;margin-top:0;text-align:center"><span id="txt-toggle-heat-cam">🌡 Toggle Grad-CAM Heatmap</span></button>
+        </div>
+
+        <!-- Sorting Counter Dashboard -->
+        <div id="sortingDashboard" style="margin-top:20px; padding:16px; background:var(--bg3); border-radius:var(--r); border:1px solid var(--border2);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-family:var(--mono); font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:1px;" id="txt-session-dash">Session Counter</div>
+            <button class="btn-sm" onclick="resetCounter()" id="txt-reset-btn" style="padding:4px 8px; font-size:10px;">Reset</button>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+            <div style="background:var(--bg2); padding:10px; border-radius:var(--r2); text-align:center; border:1px solid var(--teal-dim);">
+              <div style="font-size:20px; font-weight:700; color:var(--teal);" id="dashFemale">0</div>
+              <div style="font-size:10px; color:var(--text3); font-family:var(--mono); text-transform:uppercase;" id="txt-dash-female">♀ Female</div>
+            </div>
+            <div style="background:var(--bg2); padding:10px; border-radius:var(--r2); text-align:center; border:1px solid var(--amber-dim);">
+              <div style="font-size:20px; font-weight:700; color:var(--amber);" id="dashMale">0</div>
+              <div style="font-size:10px; color:var(--text3); font-family:var(--mono); text-transform:uppercase;" id="txt-dash-male">♂ Male</div>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-family:var(--mono); margin-bottom:6px;">
+            <div><span id="txt-dash-total">Total: </span><span id="dashTotal" style="color:var(--text2); font-weight:bold;">0</span></div>
+            <div><span id="txt-dash-flagged" style="color:var(--coral);">Flagged: </span><span id="dashFlagged" style="color:var(--coral); font-weight:bold;">0</span></div>
+          </div>
+          <div style="height:6px; background:var(--bg2); border-radius:3px; overflow:hidden;">
+            <div id="dashProgress" style="height:100%; background:var(--teal); width:0%; transition:width 0.3s;"></div>
+          </div>
+          <div style="text-align:right; font-size:10px; color:var(--text3); font-family:var(--mono); margin-top:4px;" id="dashTargetText">0 / 500</div>
         </div>
 
         <!-- Processing (camera) -->
