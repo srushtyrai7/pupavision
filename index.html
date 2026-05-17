@@ -666,6 +666,14 @@ function resetCounter() {
 function updateLiveBadge(r) {
   const badge = document.getElementById('liveBadge');
   badge.style.display = 'block';
+  
+  if (!r) {
+    badge.innerHTML = currentLang === 'en' ? 'Not pointing at pupa' : 'ಪ್ಯೂಪಾವನ್ನು ಸೂಚಿಸುತ್ತಿಲ್ಲ';
+    badge.style.borderColor = 'var(--text3)';
+    badge.style.color = 'var(--text2)';
+    return;
+  }
+  
   const lbl = currentLang === 'en' ? (r.label === 'Female' ? '♀ Female' : '♂ Male') : (r.label === 'Female' ? '♀ ಹೆಣ್ಣು' : '♂ ಗಂಡು');
   badge.innerHTML = r.flagged ? `⚠ Low Confidence (${(r.conf*100).toFixed(0)}%)` : `${lbl} (${(r.conf*100).toFixed(0)}%)`;
   badge.style.borderColor = r.flagged ? 'var(--coral)' : (r.label === 'Female' ? 'var(--teal)' : 'var(--amber)');
@@ -738,11 +746,12 @@ async function startCamera() {
                updateLiveBadge(res);
            } catch(e) {
                console.error(e);
+               updateLiveBadge(null);
            }
            window._isLiveClassifying = false;
          }
        }
-    }, 3000);
+    }, 2000);
 
   } catch(e) {
     document.getElementById('camError').classList.add('show');
@@ -918,6 +927,11 @@ async function runClassification(imgSrc, source) {
     document.getElementById('classifyBtn').disabled=false;
   }
 
+  if (!result) {
+    alert(currentLang === 'en' ? "No pupa detected in the image." : "ಚಿತ್ರದಲ್ಲಿ ಯಾವುದೇ ಪ್ಯೂಪಾ ಕಂಡುಬಂದಿಲ್ಲ.");
+    return;
+  }
+
   currentResult = result;
   showResult(result);
   showFeatures(result);
@@ -1006,17 +1020,11 @@ async function callRoboflowAPI(imgSrc) {
        femaleProb = label === 'Female' ? conf : (1 - conf);
        maleProb = label === 'Male' ? conf : (1 - conf);
     } else {
-       label = 'Female';
-       conf = 0.85; 
-       femaleProb = 0.85;
-       maleProb = 0.15;
+       return null; // No pupa detected
     }
   } catch(e) {
      console.error("Error parsing Roboflow response", e);
-     label = 'Female';
-     conf = 0.85;
-     femaleProb = 0.85;
-     maleProb = 0.15;
+     return null; // No pupa detected
   }
 
   return {
