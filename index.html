@@ -911,8 +911,9 @@ async function runClassification(imgSrc, source) {
   try {
      result = await callRoboflowAPI(imgSrc);
   } catch(e) {
-     console.error(e);
-     result = simulateClassification(imgSrc);
+     console.error("API Call Failed:", e);
+     alert("Roboflow API Error: " + e.message);
+     result = null;
   }
   
   await animPromise;
