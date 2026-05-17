@@ -1017,6 +1017,7 @@ async function callRoboflowAPI(imgSrc) {
     }
 
     if (label !== 'Unknown') {
+       if (conf < 0.40) return null; // Reject low confidence as background/no pupa
        femaleProb = label === 'Female' ? conf : (1 - conf);
        maleProb = label === 'Male' ? conf : (1 - conf);
     } else {
