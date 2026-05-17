@@ -945,6 +945,9 @@ async function runClassification(imgSrc, source) {
           }
           debugInfo += "Other Output Data: " + JSON.stringify(nonBase64).substring(0, 300);
         }
+        if (window.lastBase64Length) {
+          debugInfo += "Sent Base64 Length: " + window.lastBase64Length + " chars\n";
+        }
       } else {
         debugInfo = "No raw data captured.";
       }
@@ -1014,8 +1017,9 @@ async function callRoboflowAPI(imgSrc) {
   if (compressedSrc.startsWith('data:image')) {
     base64Image = compressedSrc.split(',')[1];
   }
+  window.lastBase64Length = base64Image ? base64Image.length : 0;
 
-  const response = await fetch('https://corsproxy.io/?url=https://serverless.roboflow.com/srushtys-workspace/workflows/general-segmentation-api', {
+  const response = await fetch('https://corsproxy.io/?url=https://serverless.roboflow.com/srushtys-workspace/workflows/general-segmentation-api-2', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -1024,7 +1028,7 @@ async function callRoboflowAPI(imgSrc) {
       api_key: 'a54qbMRDRU0ckEERQPZM',
       inputs: {
         "image": {"type": "base64", "value": base64Image},
-        "classes": "female, male"
+        "classes": "Female, Male"
       }
     })
   });
