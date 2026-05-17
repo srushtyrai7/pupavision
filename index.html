@@ -929,11 +929,29 @@ async function runClassification(imgSrc, source) {
   }
 
   if (!result) {
-    let rawStr = "";
+    let debugInfo = "";
     try {
-      rawStr = window.lastRawResponse ? JSON.stringify(window.lastRawResponse).substring(0, 300) : "No raw data";
-    } catch(e) {}
-    alert((currentLang === 'en' ? "No pupa detected in the image." : "ಚಿತ್ರದಲ್ಲಿ ಯಾವುದೇ ಪ್ಯೂಪಾ ಕಂಡುಬಂದಿಲ್ಲ.") + "\n\nRaw API Data: " + rawStr);
+      if (window.lastRawResponse) {
+        const raw = window.lastRawResponse;
+        debugInfo += "Response Keys: " + Object.keys(raw).join(", ") + "\n";
+        if (raw.outputs && raw.outputs[0]) {
+          debugInfo += "Output[0] Keys: " + Object.keys(raw.outputs[0]).join(", ") + "\n";
+          // Print non-base64 keys
+          const nonBase64 = {};
+          for (let k of Object.keys(raw.outputs[0])) {
+            if (k !== 'annotated_image') {
+              nonBase64[k] = raw.outputs[0][k];
+            }
+          }
+          debugInfo += "Other Output Data: " + JSON.stringify(nonBase64).substring(0, 300);
+        }
+      } else {
+        debugInfo = "No raw data captured.";
+      }
+    } catch(e) {
+      debugInfo = "Error rendering debug info: " + e.message;
+    }
+    alert((currentLang === 'en' ? "No pupa detected in the image." : "ಚಿತ್ರದಲ್ಲಿ ಯಾವುದೇ ಪ್ಯೂಪಾ ಕಂಡುಬಂದಿಲ್ಲ.") + "\n\n" + debugInfo);
     return;
   }
 
