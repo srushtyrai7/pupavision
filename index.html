@@ -929,7 +929,11 @@ async function runClassification(imgSrc, source) {
   }
 
   if (!result) {
-    alert(currentLang === 'en' ? "No pupa detected in the image." : "ಚಿತ್ರದಲ್ಲಿ ಯಾವುದೇ ಪ್ಯೂಪಾ ಕಂಡುಬಂದಿಲ್ಲ.");
+    let rawStr = "";
+    try {
+      rawStr = window.lastRawResponse ? JSON.stringify(window.lastRawResponse).substring(0, 300) : "No raw data";
+    } catch(e) {}
+    alert((currentLang === 'en' ? "No pupa detected in the image." : "ಚಿತ್ರದಲ್ಲಿ ಯಾವುದೇ ಪ್ಯೂಪಾ ಕಂಡುಬಂದಿಲ್ಲ.") + "\n\nRaw API Data: " + rawStr);
     return;
   }
 
@@ -1012,6 +1016,7 @@ async function callRoboflowAPI(imgSrc) {
   }
 
   const result = await response.json();
+  window.lastRawResponse = result; // Save for debugging
   console.log("Roboflow Result:", result);
 
   let label = 'Unknown';
