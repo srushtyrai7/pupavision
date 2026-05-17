@@ -965,7 +965,7 @@ async function callRoboflowAPI(imgSrc) {
       api_key: 'a54qbMRDRU0ckEERQPZM',
       inputs: {
         "image": {"type": "base64", "value": base64Image},
-        "classes": "female, male, background, none, empty, paper"
+        "classes": "female, male"
       }
     })
   });
@@ -1019,7 +1019,7 @@ async function callRoboflowAPI(imgSrc) {
     }
 
     if (label !== 'Unknown') {
-       if (conf < 0.60) return null; // Increased threshold to 60% to be safer
+       if (conf < 0.40) return null; // Reverted threshold back to 40%
        femaleProb = label === 'Female' ? conf : (1 - conf);
        maleProb = label === 'Male' ? conf : (1 - conf);
     } else {
