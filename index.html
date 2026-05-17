@@ -166,22 +166,6 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .feat-bar-fill{height:100%;background:var(--teal);border-radius:3px;transition:width 1.2s ease}
 .feat-val{font-family:var(--mono);font-size:11px;color:var(--text3);width:32px;text-align:right}
 
-/* ── Batch mode ── */
-.batch-drop{border:2px dashed var(--amber-dim);border-radius:var(--r);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
-.batch-drop:hover{border-color:var(--amber);background:rgba(245,166,35,.05)}
-.batch-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
-.batch-queue{margin-top:14px;display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
-.batch-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:var(--r2);border:1px solid var(--border2);font-size:13px}
-.bi-thumb{width:32px;height:32px;border-radius:4px;object-fit:cover;flex-shrink:0;border:1px solid var(--border2)}
-.bi-name{flex:1;color:var(--text2);font-family:var(--mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bi-result{font-family:var(--mono);font-size:12px;font-weight:700}
-.bi-female{color:var(--teal)}.bi-male{color:var(--amber)}.bi-pending{color:var(--text3)}.bi-flag{color:var(--coral);font-size:11px}
-.batch-progress{margin-top:12px;background:var(--bg3);border-radius:4px;overflow:hidden;height:4px;display:none}
-.batch-progress-fill{height:100%;background:linear-gradient(90deg,var(--teal2),var(--teal));transition:width .3s ease}
-.batch-summary{display:none;margin-top:14px;padding:12px;background:var(--bg3);border-radius:var(--r2);border:1px solid var(--border2)}
-.summary-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0}
-.summary-val{font-family:var(--mono);font-weight:700}
-
 /* ── Info cards ── */
 .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
 .info-card{padding:14px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r)}
@@ -190,7 +174,7 @@ header{padding:28px 0 24px;border-bottom:1px solid var(--border);display:flex;al
 .info-text{font-size:12px;color:var(--text3);line-height:1.5}
 
 /* ── History ── */
-.history-wrap{grid-column:1/-1}
+.history-wrap{}
 .history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:8px}
 .hist-item{position:relative;border-radius:var(--r2);overflow:hidden;aspect-ratio:1;cursor:pointer;border:2px solid transparent;transition:border-color .2s}
 .hist-item:hover{border-color:var(--teal)}
@@ -440,54 +424,7 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
     </div>
   </div>
 
-  <!-- RIGHT: Batch Mode -->
-  <div class="panel">
-    <div class="panel-header">
-      <div class="panel-icon pi-amber">📦</div>
-      <div>
-        <div class="panel-title">Batch Classifier</div>
-        <div class="panel-sub">Multiple pupae · CSV export</div>
-      </div>
-    </div>
-    <div class="tab-row">
-      <button class="tab-btn on" onclick="switchTab('batch-upload','batch')">Upload Batch</button>
-      <button class="tab-btn"    onclick="switchTab('batch-results','batch')">Results</button>
-    </div>
-    <div class="panel-body">
-
-      <div class="tab-pane on" id="tab-batch-upload">
-        <div class="batch-drop" id="batchDrop">
-          <input type="file" accept="image/*" multiple id="batchFiles" onchange="handleBatch(event)">
-          <div style="font-size:28px;margin-bottom:8px">📁</div>
-          <div style="font-size:14px;color:var(--text2)">Select <strong style="color:var(--amber)">multiple pupa images</strong></div>
-          <div style="font-size:12px;color:var(--text3);margin-top:4px;font-family:var(--mono)">Ctrl+Click to select many files</div>
-        </div>
-        <div id="batchQueue" class="batch-queue"></div>
-        <div class="batch-progress" id="batchProgress"><div class="batch-progress-fill" id="batchProgressFill" style="width:0%"></div></div>
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap" id="batchControls" style="display:none">
-          <button class="btn btn-primary" id="batchRunBtn" onclick="runBatch()" style="flex:1;margin-top:0" disabled>⚡ Run Batch Classification</button>
-          <button class="btn-secondary" onclick="clearBatch()">✕ Clear</button>
-        </div>
-      </div>
-
-      <div class="tab-pane" id="tab-batch-results">
-        <div id="noBatchResult" style="text-align:center;padding:32px 0;color:var(--text3);font-family:var(--mono);font-size:13px">Run a batch to see results here</div>
-        <div class="batch-summary" id="batchSummary">
-          <div style="font-family:var(--mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Batch Summary</div>
-          <div class="summary-row"><span>Total classified</span><span class="summary-val" id="sumTotal">—</span></div>
-          <div class="summary-row"><span>Female 🟢</span><span class="summary-val pv-female" id="sumFemale">—</span></div>
-          <div class="summary-row"><span>Male 🟡</span><span class="summary-val pv-male" id="sumMale">—</span></div>
-          <div class="summary-row"><span>Flagged for review ⚠️</span><span class="summary-val" style="color:var(--coral)" id="sumFlagged">—</span></div>
-          <div class="summary-row"><span>Avg. confidence</span><span class="summary-val" id="sumConf">—</span></div>
-        </div>
-        <div id="batchResultList" class="batch-queue" style="margin-top:12px;max-height:280px"></div>
-        <button class="btn-secondary" onclick="exportCSV()" id="exportBtn" style="margin-top:12px;display:none;width:100%">⬇ Download CSV</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- HISTORY (full width) -->
+  <!-- HISTORY -->
   <div class="panel history-wrap">
     <div class="panel-header">
       <div class="panel-icon pi-coral">🕒</div>
@@ -522,7 +459,6 @@ footer{border-top:1px solid var(--border2);padding:24px 0;display:flex;align-ite
 <script>
 // ── State ──────────────────────────────────────────────────────
 let currentImg = null, currentResult = null;
-let batchFiles = [], batchResults = [];
 let heatmapVisible = false, heatmapCamVisible = false;
 let sessionHistory = [];
 let stream = null, facingMode = 'environment';
@@ -607,8 +543,7 @@ function updateLiveBadge(r) {
 // ── Tab switcher ───────────────────────────────────────────────
 function switchTab(name, group) {
   const groups = {
-    classify: ['camera','upload','result','features'],
-    batch:    ['batch-upload','batch-results']
+    classify: ['camera','upload','result','features']
   };
   groups[group].forEach(id => {
     document.getElementById('tab-'+id).classList.remove('on');
@@ -1103,105 +1038,6 @@ function addToHistory(src, result) {
   const lbl=result.flagged?`⚠ ${(result.conf*100).toFixed(0)}%`:`${result.label==='Female'?'♀':'♂'} ${(result.conf*100).toFixed(0)}%`;
   item.innerHTML=`<img src="${src}" alt=""><div class="hist-badge hb-${cls}">${lbl}</div>`;
   grid.prepend(item);
-}
-
-// ══════════════════════════════════════════════════════════════
-// BATCH MODE
-// ══════════════════════════════════════════════════════════════
-function handleBatch(e) {
-  batchFiles=Array.from(e.target.files);
-  if(!batchFiles.length) return;
-  const queue=document.getElementById('batchQueue');
-  queue.innerHTML='';
-  batchFiles.forEach((file,i)=>{
-    const item=document.createElement('div');
-    item.className='batch-item'; item.id='bi-'+i;
-    const reader=new FileReader();
-    reader.onload=ev=>{item.innerHTML=`<img class="bi-thumb" src="${ev.target.result}" alt=""><span class="bi-name">${file.name}</span><span class="bi-result bi-pending" id="bir-${i}">Pending</span>`;};
-    reader.readAsDataURL(file);
-    queue.appendChild(item);
-  });
-  document.getElementById('batchRunBtn').disabled=false;
-  document.getElementById('batchControls').style.display='flex';
-}
-
-function clearBatch() {
-  batchFiles=[];batchResults=[];
-  document.getElementById('batchQueue').innerHTML='';
-  document.getElementById('batchFiles').value='';
-  document.getElementById('batchRunBtn').disabled=true;
-  document.getElementById('batchProgress').style.display='none';
-}
-
-async function runBatch() {
-  if(!batchFiles.length) return;
-  document.getElementById('batchRunBtn').disabled=true;
-  const progress=document.getElementById('batchProgress');
-  const fill=document.getElementById('batchProgressFill');
-  progress.style.display='block';
-  batchResults=[];
-  for(let i=0;i<batchFiles.length;i++){
-    const file = batchFiles[i];
-    const dataUrl = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
-    
-    let result;
-    try {
-        result = await callRoboflowAPI(dataUrl);
-    } catch(e) {
-        console.error(e);
-        result = simulateClassification(batchFiles[i].name+i);
-    }
-    
-    batchResults.push({filename:batchFiles[i].name,...result});
-    fill.style.width=((i+1)/batchFiles.length*100)+'%';
-    const birEl=document.getElementById('bir-'+i);
-    if(birEl){
-      const cls=result.flagged?'bi-flag':result.label==='Female'?'bi-female':'bi-male';
-      const lbl=result.flagged?`⚠ ${(result.conf*100).toFixed(0)}%`:`${result.label==='Female'?'♀':'♂'} ${(result.conf*100).toFixed(0)}%`;
-      birEl.className='bi-result '+cls; birEl.textContent=lbl;
-    }
-  }
-  showBatchResults();
-  switchTab('batch-results','batch');
-}
-
-function showBatchResults() {
-  const females=batchResults.filter(r=>r.label==='Female'&&!r.flagged);
-  const males=batchResults.filter(r=>r.label==='Male'&&!r.flagged);
-  const flagged=batchResults.filter(r=>r.flagged);
-  const avgConf=batchResults.reduce((a,r)=>a+r.conf,0)/batchResults.length;
-  document.getElementById('batchSummary').style.display='block';
-  document.getElementById('noBatchResult').style.display='none';
-  document.getElementById('sumTotal').textContent=batchResults.length;
-  document.getElementById('sumFemale').textContent=females.length;
-  document.getElementById('sumMale').textContent=males.length;
-  document.getElementById('sumFlagged').textContent=flagged.length;
-  document.getElementById('sumConf').textContent=(avgConf*100).toFixed(1)+'%';
-  const list=document.getElementById('batchResultList');
-  list.innerHTML='';
-  batchResults.forEach(r=>{
-    const item=document.createElement('div');
-    item.className='batch-item';
-    const cls=r.flagged?'bi-flag':r.label==='Female'?'bi-female':'bi-male';
-    const lbl=r.flagged?`⚠ Low conf (${(r.conf*100).toFixed(0)}%)`:`${r.label==='Female'?'♀ Female':'♂ Male'} — ${(r.conf*100).toFixed(0)}%`;
-    item.innerHTML=`<span class="bi-name">${r.filename}</span><span class="bi-result ${cls}">${lbl}</span>`;
-    list.appendChild(item);
-  });
-  document.getElementById('exportBtn').style.display='block';
-}
-
-function exportCSV() {
-  let csv='filename,prediction,female_prob,male_prob,confidence,flagged_for_review\n';
-  batchResults.forEach(r=>{csv+=`"${r.filename}","${r.label}",${(r.female*100).toFixed(1)}%,${(r.male*100).toFixed(1)}%,${(r.conf*100).toFixed(1)}%,${r.flagged}\n`;});
-  const blob=new Blob([csv],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download='pupa_classification_results.csv';
-  a.click(); URL.revokeObjectURL(url);
 }
 
 // ── Drag & drop ─────────────────────────────────────────────────
