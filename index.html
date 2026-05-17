@@ -302,6 +302,10 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
   
   footer{flex-direction:column; align-items:flex-start; padding:24px 0; gap:12px;}
 }
+
+/* ── Page Views ── */
+.page-view { display: none; animation: fadeIn 0.4s ease; }
+.page-view.active { display: block; }
 </style>
 </head>
 <body>
@@ -317,11 +321,15 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
     </div>
   </div>
   <div class="header-meta">
+    <button id="btnBackHome" class="btn-sm" onclick="goToIntro()" style="display:none; margin-right:8px; font-size:14px; padding:6px 14px; border-radius:20px; border:1px solid var(--teal); background:var(--teal-dim); color:var(--teal); cursor:pointer; backdrop-filter:blur(10px);">&larr; Back Home</button>
     <button id="langToggle" class="btn-sm" onclick="toggleLanguage()" style="margin-right:8px;font-size:14px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);cursor:pointer; backdrop-filter:blur(10px);">🇮🇳 ಕನ್ನಡ</button>
     <span class="badge badge-amber" id="txt-karnataka">Karnataka Sericulture</span>
     <span class="badge" id="txt-sim">MobileNetV2 Simulation</span>
   </div>
 </header>
+
+<!-- INTRO PAGE -->
+<div id="page-intro" class="page-view active">
 
 <!-- HERO -->
 <section class="hero">
@@ -333,6 +341,7 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
       <div class="stat"><div class="stat-val">&lt;2s</div><div class="stat-label" id="txt-inf-time">Inference Time</div></div>
       <div class="stat"><div class="stat-val">CSR2 + PM</div><div class="stat-label" id="txt-breed-sup">Breed Support</div></div>
     </div>
+    <button class="btn btn-primary" onclick="goToApp()" style="margin-top: 40px; font-size: 18px; padding: 16px 36px; width: auto; display: inline-flex; border-radius: 30px;">Launch App &rarr;</button>
   </div>
   <div class="pipeline glass">
     <div class="pipeline-title">Classification Pipeline <span class="pipe-tag" style="float:right;">≥70% threshold</span></div>
@@ -353,6 +362,10 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
   <div class="info-card"><div class="info-icon">👁️</div><div class="info-title">Grad-CAM Explainability</div><div class="info-text">Heatmap overlay shows which region the model attended to — enabling worker trust and error diagnosis.</div></div>
   <div class="info-card"><div class="info-icon">⚡</div><div class="info-title">Low Confidence Flag</div><div class="info-text">Any prediction below 70% confidence is flagged for manual review — preventing wrong-sex pairings downstream.</div></div>
 </div>
+</div> <!-- /page-intro -->
+
+<!-- APP PAGE -->
+<div id="page-app" class="page-view">
 
 <!-- MAIN GRID -->
 <div class="main-grid">
@@ -544,6 +557,7 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
   </div>
 
 </div><!-- /main-grid -->
+</div><!-- /page-app -->
 
 <!-- FOOTER -->
 <footer>
@@ -561,6 +575,21 @@ footer{border-top:1px solid var(--border);padding:32px 0;display:flex;align-item
 <canvas id="captureCanvas" style="display:none"></canvas>
 
 <script>
+// ── Page Navigation ────────────────────────────────────────────
+function goToApp() {
+  document.getElementById('page-intro').classList.remove('active');
+  document.getElementById('page-app').classList.add('active');
+  document.getElementById('btnBackHome').style.display = 'inline-block';
+  window.scrollTo(0, 0);
+}
+
+function goToIntro() {
+  document.getElementById('page-app').classList.remove('active');
+  document.getElementById('page-intro').classList.add('active');
+  document.getElementById('btnBackHome').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+
 // ── State ──────────────────────────────────────────────────────
 let currentImg = null, currentResult = null;
 let heatmapVisible = false, heatmapCamVisible = false;
