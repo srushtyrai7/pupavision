@@ -1006,16 +1006,9 @@ function compressImage(imgSrc, maxW = 640, maxH = 640) {
 
 // ── Roboflow API ────────────────────────────────────────────────
 async function callRoboflowAPI(imgSrc) {
-  let compressedSrc = imgSrc;
-  try {
-    compressedSrc = await compressImage(imgSrc);
-  } catch(e) {
-    console.error("Compression error:", e);
-  }
-
-  let base64Image = compressedSrc;
-  if (compressedSrc.startsWith('data:image')) {
-    base64Image = compressedSrc.split(',')[1];
+  let base64Image = imgSrc;
+  if (imgSrc.startsWith('data:image')) {
+    base64Image = imgSrc.split(',')[1];
   }
   window.lastBase64Length = base64Image ? base64Image.length : 0;
 
